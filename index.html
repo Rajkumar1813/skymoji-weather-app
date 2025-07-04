@@ -153,7 +153,7 @@
         .current-temp {
             font-size: 4rem;
             font-weight: 300;
-            white-space: nowrap; /* new */
+            white-space: nowrap;
         }
 
         .current-weather {
@@ -175,7 +175,7 @@
         }
 
         .weather-details span {
-            display: flex;  /* new */
+            display: flex;
             white-space: nowrap;
             margin-bottom: 5px;
         }
@@ -208,15 +208,30 @@
             height: 40px;
         }
 
-        .daily-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            transition: var(--transition);
+        .daily-forecast-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .daily-item:hover {
-            background-color: rgba(0,0,0,0.05);
-            border-radius: 8px;
+        .daily-forecast-table th {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            color: var(--primary-color);
+        }
+
+        .daily-forecast-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            vertical-align: middle;
+        }
+
+        .daily-forecast-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .daily-forecast-table tr:hover {
+            background-color: rgba(0,0,0,0.03);
         }
 
         .daily-icon {
@@ -439,6 +454,10 @@
             .digital-clock {
                 font-size: 1.2rem;
             }
+            .daily-forecast-table th, 
+            .daily-forecast-table td {
+                padding: 8px 10px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -454,6 +473,13 @@
             .welcome-bar {
                 padding: 10px 0;
             }
+            .daily-forecast-table {
+                font-size: 0.9rem;
+            }
+            .daily-icon {
+                width: 25px;
+                height: 25px;
+            }
         }
     </style>
 </head>
@@ -465,7 +491,7 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="fas fa-cloud-sun me-2"></i>Skymoji Weather App
+                <i class="fas fa-cloud-sun me-2"></i>Weather Skymoji
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -496,7 +522,7 @@
                     <button id="locationBtn" class="btn location-btn">
                         <i class="fas fa-location-arrow me-2"></i> My Location
                     </button>
-                    <input type="text" id="cityInput" class=" search-input flex-grow-1 me-2" placeholder="Enter city name...">
+                    <input type="text" id="cityInput" class="search-input flex-grow-1 me-2" placeholder="Enter city name...">
                     <button id="searchBtn" class="btn search-btn"><i class="fas fa-search me-1"></i> Search</button>
                 </div>
             </div>
@@ -550,7 +576,20 @@
                                 <div id="hourlyForecast" class="hourly-forecast"></div>
                             </div>
                             <div class="tab-pane fade" id="daily" role="tabpanel">
-                                <div id="dailyForecastItems"></div>
+                                <div class="table-responsive">
+                                    <table class="daily-forecast-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Day</th>
+                                                <th>Condition</th>
+                                                <th>Precipitation</th>
+                                                <th>Temperature</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dailyForecastItems">
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="charts" role="tabpanel">
                                 <div class="chart-container">
@@ -921,22 +960,25 @@
                     }
                 });
                 
-                const dailyItem = document.createElement('div');
-                dailyItem.className = 'daily-item d-flex justify-content-between align-items-center';
-                dailyItem.innerHTML = `
-                    <div class="day">${index === 0 ? 'Today' : day}</div>
-                    <div class="d-flex align-items-center">
-                        <img class="daily-icon me-2" src="https://openweathermap.org/img/wn/${mostFrequentIcon}.png" alt="${dayData.descriptions[0]}">
-                        <span class="me-3">${dayData.descriptions[0]}</span>
-                        ${pop > 20 ? `<span class="text-primary"><i class="fas fa-umbrella me-1"></i>${Math.round(pop)}%</span>` : ''}
-                    </div>
-                    <div class="temps">
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index === 0 ? 'Today' : day}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img class="daily-icon me-2" src="https://openweathermap.org/img/wn/${mostFrequentIcon}.png" alt="${dayData.descriptions[0]}">
+                            <span>${dayData.descriptions[0]}</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${pop > 20 ? `<span class="text-primary"><i class="fas fa-umbrella me-1"></i>${Math.round(pop)}%</span>` : 'Low'}
+                    </td>
+                    <td>
                         <span class="me-2">${Math.round(maxTemp)}°</span>
                         <span class="text-muted">${Math.round(minTemp)}°</span>
-                    </div>
+                    </td>
                 `;
                 
-                dailyContainer.appendChild(dailyItem);
+                dailyContainer.appendChild(row);
             });
         }
         
